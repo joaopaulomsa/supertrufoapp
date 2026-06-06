@@ -79,6 +79,9 @@ export function playRound(state: GameState, chosenAttribute: AttributeKey): Game
     nextOpponentDiscard = [...nextOpponentDiscard, opponentCard];
   }
 
+  const recycledPlayer = recycleIfNeeded(nextPlayerDeck, nextPlayerDiscard);
+  const recycledOpponent = recycleIfNeeded(nextOpponentDeck, nextOpponentDiscard);
+
   const result: RoundResult = {
     round: state.round,
     chosenAttribute,
@@ -91,10 +94,10 @@ export function playRound(state: GameState, chosenAttribute: AttributeKey): Game
 
   return finishIfNeeded({
     ...state,
-    playerDeck: recycleIfNeeded(nextPlayerDeck, nextPlayerDiscard).deck,
-    playerDiscard: recycleIfNeeded(nextPlayerDeck, nextPlayerDiscard).discard,
-    opponentDeck: recycleIfNeeded(nextOpponentDeck, nextOpponentDiscard).deck,
-    opponentDiscard: recycleIfNeeded(nextOpponentDeck, nextOpponentDiscard).discard,
+    playerDeck: recycledPlayer.deck,
+    playerDiscard: recycledPlayer.discard,
+    opponentDeck: recycledOpponent.deck,
+    opponentDiscard: recycledOpponent.discard,
     currentPlayerCard: null,
     currentOpponentCard: null,
     activeTurn: winner === 'opponent' ? 'opponent' : 'player',
@@ -125,12 +128,6 @@ export function nextRound(state: GameState): GameState {
   };
 
   return finishIfNeeded(nextState);
-}
-
-export function totalCards(state: GameState, side: 'player' | 'opponent'): number {
-  return side === 'player'
-    ? state.playerDeck.length + state.playerDiscard.length + (state.currentPlayerCard ? 0 : 0)
-    : state.opponentDeck.length + state.opponentDiscard.length + (state.currentOpponentCard ? 0 : 0);
 }
 
 function finishIfNeeded(state: GameState): GameState {
